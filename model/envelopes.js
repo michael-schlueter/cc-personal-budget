@@ -1,24 +1,25 @@
 "use strict";
-const envelopes = [
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.envelopes = void 0;
+exports.envelopes = [
     {
         id: 1,
-        title: 'groceries',
+        title: "groceries",
         budget: 100,
     },
     {
         id: 2,
-        title: 'rent',
+        title: "rent",
         budget: 400,
     },
     {
         id: 3,
-        title: 'clothing',
+        title: "clothing",
         budget: 50,
     },
     {
         id: 4,
-        title: 'entertainment',
+        title: "entertainment",
         budget: 100,
-    }
+    },
 ];
-module.exports = envelopes;
