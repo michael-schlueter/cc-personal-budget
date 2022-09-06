@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-const modelEnvelopes = import("../model/envelopes");
+const modelEnvelopes = require("../model/envelopes");
+const { createNewId } = require("../utils/helpers");
 
 // @desc    Get all envelopes
 // @route   GET /api/envelopes
@@ -19,6 +20,28 @@ const getAllEnvelopes = async (
   }
 };
 
+// @desc  Create a new envelope
+// @route POST /api/envelopes
+
+const addEnvelope = async (req: Request, res: Response) => {
+  try {
+    const { title, budget } = req.body;
+    const envelopes = await modelEnvelopes;
+    const newId = createNewId();
+    console.log(newId);
+    const newEnvelope = {
+      id: newId,
+      title,
+      budget,
+    };
+    envelopes.push(newEnvelope);
+    res.status(201).send(newEnvelope);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
 module.exports = {
-    getAllEnvelopes,
-}
+  getAllEnvelopes,
+  addEnvelope,
+};
