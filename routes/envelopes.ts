@@ -1,12 +1,20 @@
-const express = require("express");
-const {
+import express from "express";
+// const {
+//   getAllEnvelopes,
+//   getEnvelope,
+//   createEnvelope,
+//   updateEnvelope,
+//   deleteEnvelope,
+//   transferBudget,
+// } = require("../controller/envelopes");
+import {
   getAllEnvelopes,
   getEnvelope,
   createEnvelope,
   updateEnvelope,
   deleteEnvelope,
   transferBudget,
-} = require("../controller/envelopes");
+} from "../controller/envelopes";
 
 const envelopesRouter = express.Router();
 

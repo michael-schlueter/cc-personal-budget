@@ -3,7 +3,7 @@ import { createId, findById, getIndex } from "../utils/helpers";
 
 // @desc    Get all envelopes
 // @route   GET /api/envelopes
-const getAllEnvelopes = async (req, res) => {
+export const getAllEnvelopes = async (req, res) => {
   try {
     // Simulating DB retrieval
     const envelopes = await modelEnvelopes;
@@ -15,7 +15,7 @@ const getAllEnvelopes = async (req, res) => {
 
 // @desc    Get a specific envelope
 // @route   GET /api/envelopes/:id
-const getEnvelope = async (req, res) => {
+export const getEnvelope = async (req, res) => {
   try {
     const envelopes = await modelEnvelopes;
     const { id } = req.params;
@@ -35,7 +35,7 @@ const getEnvelope = async (req, res) => {
 
 // @desc    Create an envelope
 // @route   POST /api/envelopes
-const createEnvelope = async (req, res) => {
+export const createEnvelope = async (req, res) => {
   try {
     const envelopes = await modelEnvelopes;
     const { title, budget } = req.body;
@@ -56,7 +56,7 @@ const createEnvelope = async (req, res) => {
 
 // @desc    Update an envelope
 // @route   PUT /api/envelopes/:id
-const updateEnvelope = async (req, res) => {
+export const updateEnvelope = async (req, res) => {
   try {
     const envelopes = await modelEnvelopes;
     const { id } = req.params;
@@ -92,7 +92,7 @@ const updateEnvelope = async (req, res) => {
 
 // @desc    Delete an envelope
 // @route   DELETE /api/envelopes/:id
-const deleteEnvelope = async (req, res) => {
+export const deleteEnvelope = async (req, res) => {
   try {
     const envelopes = await modelEnvelopes;
     const { id } = req.params;
@@ -112,7 +112,7 @@ const deleteEnvelope = async (req, res) => {
   }
 };
 
-const transferBudget = async (req, res) => {
+export const transferBudget = async (req, res) => {
   try {
     const envelopes = await modelEnvelopes;
     const { fromId, toId } = req.params;
@@ -146,13 +146,4 @@ const transferBudget = async (req, res) => {
   } catch (err) {
     res.status(500).send(err);
   }
-};
-
-module.exports = {
-  getAllEnvelopes,
-  createEnvelope,
-  getEnvelope,
-  updateEnvelope,
-  deleteEnvelope,
-  transferBudget,
 };
