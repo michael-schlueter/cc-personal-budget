@@ -1,6 +1,3 @@
-// const express = require("express");
-// const dotenv = require("dotenv");
-// const logger = require("morgan");
 import express, { Express } from "express";
 import dotenv from "dotenv";
 const logger = require("morgan");

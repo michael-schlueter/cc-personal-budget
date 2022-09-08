@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-// const modelEnvelopes = require("../model/envelopes");
 import modelEnvelopes from "../model/envelopes";
 import { createId, findById, getIndex } from "../utils/helpers";
 
@@ -47,13 +46,13 @@ export const createEnvelope = async (req: Request, res: Response) => {
     if (!newId) {
       return res.status(400).send({
         message: "Invalid ID",
-      })
+      });
     }
 
     if (!envelopeBudget) {
       return res.status(400).send({
-        message: 'Invalid Budget'
-      })
+        message: "Invalid Budget",
+      });
     }
 
     const newEnvelope = {
@@ -67,7 +66,6 @@ export const createEnvelope = async (req: Request, res: Response) => {
   } catch (err) {
     res.status(500).send(err);
   }
-    
 };
 
 // @desc    Update an envelope
@@ -90,8 +88,8 @@ export const updateEnvelope = async (req: Request, res: Response) => {
 
     if (!envelopeBudget) {
       return res.status(400).send({
-        message: 'Invalid Budget'
-      })
+        message: "Invalid Budget",
+      });
     }
 
     if (title && budget) {

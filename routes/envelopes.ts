@@ -1,12 +1,4 @@
 import express from "express";
-// const {
-//   getAllEnvelopes,
-//   getEnvelope,
-//   createEnvelope,
-//   updateEnvelope,
-//   deleteEnvelope,
-//   transferBudget,
-// } = require("../controller/envelopes");
 import {
   getAllEnvelopes,
   getEnvelope,
