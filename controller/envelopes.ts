@@ -41,11 +41,18 @@ export const createEnvelope = async (req: Request, res: Response) => {
   try {
     const envelopes = await modelEnvelopes;
     const { title, budget } = req.body;
+    const envelopeBudget = parseInt(budget);
     const newId = createId(envelopes);
 
     if (!newId) {
       return res.status(400).send({
         message: "Invalid ID",
+      })
+    }
+
+    if (!envelopeBudget) {
+      return res.status(400).send({
+        message: 'Invalid Budget'
       })
     }
 
@@ -79,12 +86,19 @@ export const updateEnvelope = async (req: Request, res: Response) => {
     }
 
     const { title, budget } = req.body;
+    const envelopeBudget = parseInt(budget);
+
+    if (!envelopeBudget) {
+      return res.status(400).send({
+        message: 'Invalid Budget'
+      })
+    }
 
     if (title && budget) {
       const updatedEnvelope = {
         id: envelopeToUpdate.id,
         title,
-        budget,
+        budget: envelopeBudget,
       };
 
       modelEnvelopes[envelopeIdx] = updatedEnvelope;
@@ -136,7 +150,7 @@ export const transferBudget = async (req: Request, res: Response) => {
       });
     }
 
-    if (amount < 0) {
+    if (amount < 0 || !amount) {
       res.status(400).send({
         message: "Invalid amount",
       });

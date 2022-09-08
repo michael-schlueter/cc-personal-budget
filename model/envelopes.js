@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.envelopes = void 0;
-exports.envelopes = [
+const modelEnvelopes = [
     {
         id: 1,
         title: "groceries",
@@ -23,3 +22,4 @@ exports.envelopes = [
         budget: 100,
     },
 ];
+exports.default = modelEnvelopes;
