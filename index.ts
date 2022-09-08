@@ -1,12 +1,15 @@
-const express = require("express");
-const dotenv = require("dotenv");
+// const express = require("express");
+// const dotenv = require("dotenv");
+// const logger = require("morgan");
+import express, { Express } from "express";
+import dotenv from "dotenv";
 const logger = require("morgan");
 
 dotenv.config();
 
 const envelopesRouter = require("./routes/envelopes");
 
-const app = express();
+const app: Express = express();
 const port = process.env.PORT;
 
 app.use(logger("dev"));
