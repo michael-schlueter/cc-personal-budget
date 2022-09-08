@@ -30,8 +30,7 @@ const addEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const { title, budget } = req.body;
         const envelopes = yield modelEnvelopes;
-        const newId = createNewId();
-        console.log(newId);
+        const newId = createNewId(envelopes);
         const newEnvelope = {
             id: newId,
             title,
