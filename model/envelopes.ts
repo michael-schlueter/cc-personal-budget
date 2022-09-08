@@ -1,4 +1,4 @@
-const envelopes = [
+const modelEnvelopes = [
   {
     id: 1,
     title: "groceries",
@@ -21,4 +21,4 @@ const envelopes = [
   },
 ];
 
-module.exports = envelopes;
+export default modelEnvelopes;

@@ -1,9 +1,11 @@
-const modelEnvelopes = require("../model/envelopes");
+import { Request, Response } from "express";
+// const modelEnvelopes = require("../model/envelopes");
+import modelEnvelopes from "../model/envelopes";
 import { createId, findById, getIndex } from "../utils/helpers";
 
 // @desc    Get all envelopes
 // @route   GET /api/envelopes
-export const getAllEnvelopes = async (req, res) => {
+export const getAllEnvelopes = async (req: Request, res: Response) => {
   try {
     // Simulating DB retrieval
     const envelopes = await modelEnvelopes;
@@ -15,7 +17,7 @@ export const getAllEnvelopes = async (req, res) => {
 
 // @desc    Get a specific envelope
 // @route   GET /api/envelopes/:id
-export const getEnvelope = async (req, res) => {
+export const getEnvelope = async (req: Request, res: Response) => {
   try {
     const envelopes = await modelEnvelopes;
     const { id } = req.params;
@@ -35,11 +37,17 @@ export const getEnvelope = async (req, res) => {
 
 // @desc    Create an envelope
 // @route   POST /api/envelopes
-export const createEnvelope = async (req, res) => {
+export const createEnvelope = async (req: Request, res: Response) => {
   try {
     const envelopes = await modelEnvelopes;
     const { title, budget } = req.body;
     const newId = createId(envelopes);
+
+    if (!newId) {
+      return res.status(400).send({
+        message: "Invalid ID",
+      })
+    }
 
     const newEnvelope = {
       id: newId,
@@ -52,19 +60,20 @@ export const createEnvelope = async (req, res) => {
   } catch (err) {
     res.status(500).send(err);
   }
+    
 };
 
 // @desc    Update an envelope
 // @route   PUT /api/envelopes/:id
-export const updateEnvelope = async (req, res) => {
+export const updateEnvelope = async (req: Request, res: Response) => {
   try {
     const envelopes = await modelEnvelopes;
     const { id } = req.params;
     const envelopeToUpdate = findById(envelopes, id);
     const envelopeIdx = getIndex(envelopes, id);
 
-    if (!envelopeToUpdate) {
-      res.status(404).send({
+    if (!envelopeToUpdate || !envelopeIdx) {
+      return res.status(404).send({
         message: "Envelope Not Found",
       });
     }
@@ -92,15 +101,15 @@ export const updateEnvelope = async (req, res) => {
 
 // @desc    Delete an envelope
 // @route   DELETE /api/envelopes/:id
-export const deleteEnvelope = async (req, res) => {
+export const deleteEnvelope = async (req: Request, res: Response) => {
   try {
     const envelopes = await modelEnvelopes;
     const { id } = req.params;
     const envelopeToDelete = findById(envelopes, id);
     const envelopeIdx = getIndex(envelopes, id);
 
-    if (!envelopeToDelete) {
-      res.status(404).send({
+    if (!envelopeToDelete || !envelopeIdx) {
+      return res.status(404).send({
         message: "Envelope not found",
       });
     }
@@ -112,7 +121,7 @@ export const deleteEnvelope = async (req, res) => {
   }
 };
 
-export const transferBudget = async (req, res) => {
+export const transferBudget = async (req: Request, res: Response) => {
   try {
     const envelopes = await modelEnvelopes;
     const { fromId, toId } = req.params;
@@ -122,7 +131,7 @@ export const transferBudget = async (req, res) => {
     const receivingEnvelope = findById(envelopes, toId);
 
     if (!sendingEnvelope || !receivingEnvelope) {
-      res.status(404).send({
+      return res.status(404).send({
         message: "Envelope(s) not found",
       });
     }
