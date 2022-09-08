@@ -1,5 +1,5 @@
 const modelEnvelopes = require("../model/envelopes");
-const { createId, findById, getIndex } = require("../utils/helpers");
+import { createId, findById, getIndex } from "../utils/helpers";
 
 // @desc    Get all envelopes
 // @route   GET /api/envelopes

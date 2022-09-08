@@ -1,4 +1,10 @@
-const createId = (envelopes) => {
+interface Envelope {
+  id: number;
+  title: string;
+  budget: number;
+}
+
+export const createId = (envelopes: Envelope[]) => {
   const newId = envelopes.length + 1;
 
   if (newId === NaN || newId === undefined || newId < 0) {
@@ -9,7 +15,7 @@ const createId = (envelopes) => {
   return newId;
 };
 
-const findById = (envelopes, id) => {
+export const findById = (envelopes: Envelope[], id: string) => {
   const envelopeId = parseInt(id);
 
   if (envelopeId === NaN || envelopeId === undefined || envelopeId < 0) {
@@ -28,7 +34,7 @@ const findById = (envelopes, id) => {
   return retrievedEnvelope;
 };
 
-const getIndex = (envelopes, id) => {
+export const getIndex = (envelopes: Envelope[], id: string) => {
   const envelopeId = parseInt(id);
 
   if (envelopeId === NaN || envelopeId === undefined || envelopeId < 0) {
@@ -46,10 +52,4 @@ const getIndex = (envelopes, id) => {
   }
 
   return retrievedIdx;
-};
-
-module.exports = {
-  createId,
-  findById,
-  getIndex,
 };
