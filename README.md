@@ -53,7 +53,7 @@ in your terminal and visit localhost:3000 in your browser.
 
 
 ## Project Status
-This project will be enhanced in a future Codecademy challenge project where the aim will be to integrate a database for the data to persist. In this version of the project I plan to use Prisma in combination with a PostgreSQL database because I already worked with TypeScript in this project. Additionally I may build a frontend to display the envelopes and budgets and to provide CRUD functionality.
+This project will be enhanced in a future Codecademy challenge project where the aim will be to integrate a database for the data to persist. In this version of the project I plan to use Prisma in combination with a PostgreSQL database because I already worked with TypeScript in this project. There is another version of this project where I use plain JavaScript and node-postgres to integrate a PostgreSQL database. I want to get a better understanding for the trade-offs using one over the other. Additionally I may build a frontend to display the envelopes and budgets and to provide CRUD functionality.
 
 
 
