@@ -8,7 +8,7 @@ const envelopes_1 = require("../controller/envelopes");
 const envelopes_prisma_1 = require("../controller/envelopes-prisma");
 const envelopesRouter = express_1.default.Router();
 envelopesRouter.get("/", envelopes_prisma_1.getAllEnvelopes);
-envelopesRouter.get("/:id", envelopes_1.getEnvelope);
+envelopesRouter.get("/:id", envelopes_prisma_1.getEnvelope);
 envelopesRouter.post("/", envelopes_1.createEnvelope);
 envelopesRouter.put("/:id", envelopes_1.updateEnvelope);
 envelopesRouter.delete("/:id", envelopes_1.deleteEnvelope);

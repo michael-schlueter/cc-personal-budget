@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllEnvelopes = void 0;
+exports.getEnvelope = exports.getAllEnvelopes = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 // @desc    Get all envelopes
@@ -19,16 +19,40 @@ const getAllEnvelopes = (req, res) => __awaiter(void 0, void 0, void 0, function
         const envelopes = yield prisma.envelopes.findMany();
         if (!envelopes) {
             return res.status(404).send({
-                message: "No envelopes found"
+                message: "No envelopes found",
             });
         }
         return res.status(200).send(envelopes);
     }
     catch (err) {
         return res.status(500).send({
-            error: err.message
+            error: err.message,
         });
     }
 });
 exports.getAllEnvelopes = getAllEnvelopes;
+// @desc  Get a specific envelope
+// @route Get /api/envelopes/:id
+const getEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const envelope = yield prisma.envelopes.findUnique({
+            where: {
+                id: id
+            }
+        });
+        if (!envelope) {
+            return res.status(404).send({
+                message: "Envelope Not Found",
+            });
+        }
+        res.status(200).send(envelope);
+    }
+    catch (err) {
+        return res.status(500).send({
+            message: err.message,
+        });
+    }
+});
+exports.getEnvelope = getEnvelope;
 //# sourceMappingURL=envelopes-prisma.js.map
