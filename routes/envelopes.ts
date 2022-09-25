@@ -1,12 +1,15 @@
 import express from "express";
 import {
-  getAllEnvelopes,
+  // getAllEnvelopes,
   getEnvelope,
   createEnvelope,
   updateEnvelope,
   deleteEnvelope,
   transferBudget,
 } from "../controller/envelopes";
+import {
+  getAllEnvelopes
+} from "../controller/envelopes-prisma"
 
 const envelopesRouter = express.Router();
 

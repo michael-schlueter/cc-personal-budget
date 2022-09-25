@@ -10,7 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Envelope {
+model Envelopes {
   id  String  @id @default(uuid())
   title String  @unique
   budget  Int
@@ -21,6 +21,6 @@ model Transactions {
   title String
   amount  Int
   date  DateTime  @default(now())
-  sendingEnvelopeId String
-  receivingEnvelopeId String
+  sendingEnvelopeId String @unique
+  receivingEnvelopeId String @unique
 }
