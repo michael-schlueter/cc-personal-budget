@@ -9,3 +9,18 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Envelope {
+  id  String  @id @default(uuid())
+  title String  @unique
+  budget  Int
+}
+
+model Transactions {
+  id  String  @id @default(uuid())
+  title String
+  amount  Int
+  date  DateTime  @default(now())
+  sendingEnvelopeId String
+  receivingEnvelopeId String
+}
