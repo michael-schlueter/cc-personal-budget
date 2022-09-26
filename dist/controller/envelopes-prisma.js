@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
+exports.updateEnvelope = exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 // @desc    Get all envelopes
@@ -80,4 +80,33 @@ const createEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.createEnvelope = createEnvelope;
+// @desc    Update an envelope
+// @route   PUT/api/envelopes
+const updateEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { title, budget } = req.body;
+    try {
+        if (title === "" || title == null || budget === "" || budget == null) {
+            return res.status(400).send({
+                message: "Title and/or budget not provided",
+            });
+        }
+        const updatedEnvelope = yield prisma.envelopes.update({
+            where: {
+                id: id
+            },
+            data: {
+                title: title,
+                budget: parseInt(budget)
+            }
+        });
+        res.status(200).send(updatedEnvelope);
+    }
+    catch (err) {
+        res.status(500).send({
+            error: err.message
+        });
+    }
+});
+exports.updateEnvelope = updateEnvelope;
 //# sourceMappingURL=envelopes-prisma.js.map

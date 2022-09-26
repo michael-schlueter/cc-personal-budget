@@ -73,3 +73,35 @@ export const createEnvelope = async (req: Request, res: Response) => {
         });
     }
 };
+
+// @desc    Update an envelope
+// @route   PUT/api/envelopes
+export const updateEnvelope = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { title, budget } = req.body;
+
+    try {
+        
+        if (title === "" || title == null || budget === "" || budget == null) {
+            return res.status(400).send({
+                message: "Title and/or budget not provided",
+            });
+        }
+
+        const updatedEnvelope = await prisma.envelopes.update({
+            where: {
+                id: id
+            },
+            data: {
+                title: title,
+                budget: parseInt(budget)
+            }
+        })
+
+        res.status(200).send(updatedEnvelope);
+    } catch (err: any) {
+        res.status(500).send({
+            error: err.message
+        })
+    }
+}
