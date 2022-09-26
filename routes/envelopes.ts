@@ -8,7 +8,7 @@ import {
   deleteEnvelope,
   createTransaction,
   getEnvelopeTransactions,
-} from "../controller/envelopes-prisma"
+} from "../controller/envelopes-prisma";
 
 const envelopesRouter = express.Router();
 

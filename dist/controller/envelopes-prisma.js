@@ -38,8 +38,8 @@ const getEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const envelope = yield prisma.envelopes.findUnique({
             where: {
-                id: id
-            }
+                id: id,
+            },
         });
         if (!envelope) {
             return res.status(404).send({
@@ -69,7 +69,7 @@ const createEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
             data: {
                 title: title,
                 budget: parseInt(budget),
-            }
+            },
         });
         return res.status(201).send(newEnvelope);
     }
@@ -93,18 +93,18 @@ const updateEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
         }
         const updatedEnvelope = yield prisma.envelopes.update({
             where: {
-                id: id
+                id: id,
             },
             data: {
                 title: title,
-                budget: parseInt(budget)
-            }
+                budget: parseInt(budget),
+            },
         });
         res.status(200).send(updatedEnvelope);
     }
     catch (err) {
         res.status(500).send({
-            error: err.message
+            error: err.message,
         });
     }
 });
@@ -116,14 +116,14 @@ const deleteEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
     try {
         const deletedEnvelope = yield prisma.envelopes.delete({
             where: {
-                id: id
+                id: id,
             },
         });
-        return res.status(204).send('Envelope deleted');
+        return res.status(204).send("Envelope deleted");
     }
     catch (err) {
         return res.status(500).send({
-            error: err.message
+            error: err.message,
         });
     }
 });
@@ -141,22 +141,22 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         }
         if (parseInt(amount) < 0) {
             return res.status(400).send({
-                message: "Invalid amount"
+                message: "Invalid amount",
             });
         }
         const envelope = yield prisma.envelopes.findUnique({
             where: {
-                id: id
-            }
+                id: id,
+            },
         });
         const receivingEnvelope = yield prisma.envelopes.findUnique({
             where: {
-                id: receivingEnvelopeId
-            }
+                id: receivingEnvelopeId,
+            },
         });
         if (!envelope || !receivingEnvelope) {
             return res.status(404).send({
-                message: "Envelope not found"
+                message: "Envelope not found",
             });
         }
         if (parseInt(amount) > (envelope === null || envelope === void 0 ? void 0 : envelope.budget)) {
@@ -169,30 +169,30 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 title: title,
                 amount: parseInt(amount),
                 sendingEnvelopeId: id,
-                receivingEnvelopeId: receivingEnvelopeId
-            }
+                receivingEnvelopeId: receivingEnvelopeId,
+            },
         });
         yield prisma.envelopes.update({
             where: {
-                id: id
+                id: id,
             },
             data: {
-                budget: envelope.budget - parseInt(amount)
-            }
+                budget: envelope.budget - parseInt(amount),
+            },
         });
         yield prisma.envelopes.update({
             where: {
-                id: receivingEnvelopeId
+                id: receivingEnvelopeId,
             },
             data: {
-                budget: (receivingEnvelope === null || receivingEnvelope === void 0 ? void 0 : receivingEnvelope.budget) - parseInt(amount)
-            }
+                budget: (receivingEnvelope === null || receivingEnvelope === void 0 ? void 0 : receivingEnvelope.budget) - parseInt(amount),
+            },
         });
         return res.status(201).send(newTransaction);
     }
     catch (err) {
         return res.status(500).send({
-            error: err.message
+            error: err.message,
         });
     }
 });
@@ -204,19 +204,19 @@ const getEnvelopeTransactions = (req, res) => __awaiter(void 0, void 0, void 0, 
     try {
         const transactions = yield prisma.transactions.findMany({
             where: {
-                sendingEnvelopeId: id
-            }
+                sendingEnvelopeId: id,
+            },
         });
         if (!transactions) {
             return res.status(404).send({
-                message: "No transactions found for this envelope"
+                message: "No transactions found for this envelope",
             });
         }
         return res.status(200).send(transactions);
     }
     catch (err) {
         return res.status(500).send({
-            error: err.message
+            error: err.message,
         });
     }
 });
