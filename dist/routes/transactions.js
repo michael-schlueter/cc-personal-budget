@@ -9,5 +9,6 @@ const transactionsRouter = express_1.default.Router();
 transactionsRouter.get("/", transactions_1.getAllTransactions);
 transactionsRouter.get("/:id", transactions_1.getTransaction);
 transactionsRouter.delete("/:id", transactions_1.deleteTransaction);
+transactionsRouter.put("/:id", transactions_1.updateTransaction);
 module.exports = transactionsRouter;
 //# sourceMappingURL=transactions.js.map
