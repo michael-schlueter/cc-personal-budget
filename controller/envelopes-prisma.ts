@@ -124,3 +124,82 @@ export const deleteEnvelope = async (req: Request, res: Response) => {
         })
     }
 }
+
+// @desc    Create a transaction
+// @route   POST/api/envelopes/:id/transactions
+export const createTransaction = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { title, amount, receivingEnvelopeId } = req.body;
+
+    try {
+        if (title === "" || title == null || amount === "" || amount == null) {
+            return res.status(400).send({
+                message: "Title, amount and/or ID of receiving envelope not provided",
+            });
+        }
+
+        if (parseInt(amount) < 0) {
+            return res.status(400).send({
+                message: "Invalid amount"
+            })
+        }
+
+        const envelope = await prisma.envelopes.findUnique({
+            where: {
+                id: id
+            }
+        });
+
+        const receivingEnvelope = await prisma.envelopes.findUnique({
+            where: {
+                id: receivingEnvelopeId
+            }
+        })
+
+        if (!envelope || !receivingEnvelope) {
+            return res.status(404).send({
+                message: "Envelope not found"
+            })
+        }
+
+        if (parseInt(amount) > envelope?.budget) {
+            return res.status(400).send({
+                message: "Insufficient budget for transfer",
+            })
+        }
+
+        const newTransaction = await prisma.transactions.create({
+            data: {
+                title: title,
+                amount: parseInt(amount),
+                sendingEnvelopeId: id,
+                receivingEnvelopeId: receivingEnvelopeId
+            }
+        });
+
+        await prisma.envelopes.update({
+            where: {
+                id: id
+            },
+            data: {
+                budget: envelope.budget - parseInt(amount)
+            }
+        })
+
+        await prisma.envelopes.update({
+            where: {
+                id: receivingEnvelopeId
+            }, 
+            data: {
+                budget: receivingEnvelope?.budget - parseInt(amount)
+            }
+        })
+
+        return res.status(201).send(newTransaction);  
+        
+    } catch (err: any) {
+        return res.status(500).send({
+            error: err.message
+        })
+    }
+}

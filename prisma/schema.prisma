@@ -21,6 +21,6 @@ model Transactions {
   title String
   amount  Int
   date  DateTime  @default(now())
-  sendingEnvelopeId String @unique
-  receivingEnvelopeId String @unique
+  sendingEnvelopeId String 
+  receivingEnvelopeId String
 }

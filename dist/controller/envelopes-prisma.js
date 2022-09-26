@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteEnvelope = exports.updateEnvelope = exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
+exports.createTransaction = exports.deleteEnvelope = exports.updateEnvelope = exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 // @desc    Get all envelopes
@@ -128,4 +128,73 @@ const deleteEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.deleteEnvelope = deleteEnvelope;
+// @desc    Create a transaction
+// @route   POST/api/envelopes/:id/transactions
+const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { title, amount, receivingEnvelopeId } = req.body;
+    try {
+        if (title === "" || title == null || amount === "" || amount == null) {
+            return res.status(400).send({
+                message: "Title, amount and/or ID of receiving envelope not provided",
+            });
+        }
+        if (parseInt(amount) < 0) {
+            return res.status(400).send({
+                message: "Invalid amount"
+            });
+        }
+        const envelope = yield prisma.envelopes.findUnique({
+            where: {
+                id: id
+            }
+        });
+        const receivingEnvelope = yield prisma.envelopes.findUnique({
+            where: {
+                id: receivingEnvelopeId
+            }
+        });
+        if (!envelope || !receivingEnvelope) {
+            return res.status(404).send({
+                message: "Envelope not found"
+            });
+        }
+        if (parseInt(amount) > (envelope === null || envelope === void 0 ? void 0 : envelope.budget)) {
+            return res.status(400).send({
+                message: "Insufficient budget for transfer",
+            });
+        }
+        const newTransaction = yield prisma.transactions.create({
+            data: {
+                title: title,
+                amount: parseInt(amount),
+                sendingEnvelopeId: id,
+                receivingEnvelopeId: receivingEnvelopeId
+            }
+        });
+        yield prisma.envelopes.update({
+            where: {
+                id: id
+            },
+            data: {
+                budget: envelope.budget - parseInt(amount)
+            }
+        });
+        yield prisma.envelopes.update({
+            where: {
+                id: receivingEnvelopeId
+            },
+            data: {
+                budget: (receivingEnvelope === null || receivingEnvelope === void 0 ? void 0 : receivingEnvelope.budget) - parseInt(amount)
+            }
+        });
+        return res.status(201).send(newTransaction);
+    }
+    catch (err) {
+        return res.status(500).send({
+            error: err.message
+        });
+    }
+});
+exports.createTransaction = createTransaction;
 //# sourceMappingURL=envelopes-prisma.js.map
