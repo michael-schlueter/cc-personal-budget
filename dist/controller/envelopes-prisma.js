@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateEnvelope = exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
+exports.deleteEnvelope = exports.updateEnvelope = exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 // @desc    Get all envelopes
@@ -109,4 +109,23 @@ const updateEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.updateEnvelope = updateEnvelope;
+// @desc    Delete an envelope
+// @route   DELETE/api/envelopes
+const deleteEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const deletedEnvelope = yield prisma.envelopes.delete({
+            where: {
+                id: id
+            },
+        });
+        return res.status(204).send('Envelope deleted');
+    }
+    catch (err) {
+        return res.status(500).send({
+            error: err.message
+        });
+    }
+});
+exports.deleteEnvelope = deleteEnvelope;
 //# sourceMappingURL=envelopes-prisma.js.map

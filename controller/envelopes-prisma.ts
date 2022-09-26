@@ -105,3 +105,22 @@ export const updateEnvelope = async (req: Request, res: Response) => {
         })
     }
 }
+
+// @desc    Delete an envelope
+// @route   DELETE/api/envelopes
+export const deleteEnvelope = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const deletedEnvelope = await prisma.envelopes.delete({
+            where: {
+                id: id
+            },
+        })
+        return res.status(204).send('Envelope deleted');
+    } catch (err: any) {
+        return res.status(500).send({
+            error: err.message
+        })
+    }
+}
