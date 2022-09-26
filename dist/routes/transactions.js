@@ -7,5 +7,6 @@ const express_1 = __importDefault(require("express"));
 const transactions_1 = require("../controller/transactions");
 const transactionsRouter = express_1.default.Router();
 transactionsRouter.get("/", transactions_1.getAllTransactions);
+transactionsRouter.get("/:id", transactions_1.getTransaction);
 module.exports = transactionsRouter;
 //# sourceMappingURL=transactions.js.map
