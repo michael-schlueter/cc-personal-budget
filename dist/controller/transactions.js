@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTransaction = exports.getAllTransactions = void 0;
+exports.deleteTransaction = exports.getTransaction = exports.getAllTransactions = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 // @desc    Get all transactions
@@ -55,4 +55,69 @@ const getTransaction = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.getTransaction = getTransaction;
+// @desc    Delete a specific transaction
+// @route   DELETE /api/transactions/:id
+const deleteTransaction = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const transactionToDelete = yield prisma.transactions.findUnique({
+            where: {
+                id: id
+            }
+        });
+        if (!transactionToDelete) {
+            return res.status(404).send({
+                message: "Transaction not found",
+            });
+        }
+        const sendingEnvelope = yield prisma.envelopes.findUnique({
+            where: {
+                id: transactionToDelete.sendingEnvelopeId
+            }
+        });
+        const receivingEnvelope = yield prisma.envelopes.findUnique({
+            where: {
+                id: transactionToDelete.receivingEnvelopeId
+            }
+        });
+        if (!sendingEnvelope || !receivingEnvelope) {
+            return res.status(404).send({
+                message: "Sending or receiving envelope not found"
+            });
+        }
+        if (transactionToDelete.amount > receivingEnvelope.budget) {
+            return res.status(400).send({
+                message: "Insufficient budget on receiving envelope to delete this transaction"
+            });
+        }
+        yield prisma.envelopes.update({
+            where: {
+                id: transactionToDelete.sendingEnvelopeId
+            },
+            data: {
+                budget: sendingEnvelope.budget + transactionToDelete.amount
+            }
+        });
+        yield prisma.envelopes.update({
+            where: {
+                id: transactionToDelete.receivingEnvelopeId
+            },
+            data: {
+                budget: receivingEnvelope.budget - transactionToDelete.amount
+            }
+        });
+        yield prisma.transactions.delete({
+            where: {
+                id: id
+            }
+        });
+        res.sendStatus(204);
+    }
+    catch (err) {
+        res.status(500).send({
+            message: err.message,
+        });
+    }
+});
+exports.deleteTransaction = deleteTransaction;
 //# sourceMappingURL=transactions.js.map
