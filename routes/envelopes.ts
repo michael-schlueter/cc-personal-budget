@@ -2,7 +2,7 @@ import express from "express";
 import {
   // getAllEnvelopes,
   // getEnvelope,
-  createEnvelope,
+  // createEnvelope,
   updateEnvelope,
   deleteEnvelope,
   transferBudget,
@@ -10,6 +10,7 @@ import {
 import {
   getAllEnvelopes,
   getEnvelope,
+  createEnvelope,
 } from "../controller/envelopes-prisma"
 
 const envelopesRouter = express.Router();

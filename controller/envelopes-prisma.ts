@@ -46,3 +46,30 @@ export const getEnvelope = async (req: Request, res: Response) => {
         })
     }
 }
+
+// @desc    Create an envelope
+// @route   POST/api/envelopes
+export const createEnvelope = async (req: Request, res: Response) => {
+    const { title, budget } = req.body;
+
+    try {
+        if (title === "" || title == null || budget === "" || budget == null) {
+            return res.status(400).send({
+                message: "Title and/or budget not provided",
+            });
+        }
+
+        const newEnvelope = await prisma.envelopes.create({
+            data: {
+                title: title,
+                budget: parseInt(budget),
+            }
+        })
+
+        return res.status(201).send(newEnvelope);
+    } catch (err: any) {
+        return res.status(500).send({
+            error: err.message,
+        });
+    }
+};

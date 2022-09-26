@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getEnvelope = exports.getAllEnvelopes = void 0;
+exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 // @desc    Get all envelopes
@@ -55,4 +55,29 @@ const getEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getEnvelope = getEnvelope;
+// @desc    Create an envelope
+// @route   POST/api/envelopes
+const createEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { title, budget } = req.body;
+    try {
+        if (title === "" || title == null || budget === "" || budget == null) {
+            return res.status(400).send({
+                message: "Title and/or budget not provided",
+            });
+        }
+        const newEnvelope = yield prisma.envelopes.create({
+            data: {
+                title: title,
+                budget: parseInt(budget),
+            }
+        });
+        return res.status(201).send(newEnvelope);
+    }
+    catch (err) {
+        return res.status(500).send({
+            error: err.message,
+        });
+    }
+});
+exports.createEnvelope = createEnvelope;
 //# sourceMappingURL=envelopes-prisma.js.map
