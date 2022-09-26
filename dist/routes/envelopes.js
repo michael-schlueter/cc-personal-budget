@@ -12,5 +12,6 @@ envelopesRouter.post("/", envelopes_prisma_1.createEnvelope);
 envelopesRouter.put("/:id", envelopes_prisma_1.updateEnvelope);
 envelopesRouter.delete("/:id", envelopes_prisma_1.deleteEnvelope);
 envelopesRouter.post("/:id/transactions", envelopes_prisma_1.createTransaction);
+envelopesRouter.get("/:id/transactions", envelopes_prisma_1.getEnvelopeTransactions);
 module.exports = envelopesRouter;
 //# sourceMappingURL=envelopes.js.map

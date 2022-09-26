@@ -203,3 +203,28 @@ export const createTransaction = async (req: Request, res: Response) => {
         })
     }
 }
+
+// @desc    Get all transactions from an envelope
+// @route   GET/api/envelopes/:id/transactions
+export const getEnvelopeTransactions = async (req: Request, res: Response) => {
+    const { id } = req.params;
+
+    try {
+        const transactions = await prisma.transactions.findMany({
+            where: {
+                sendingEnvelopeId: id
+            }
+        });
+        
+        if (!transactions) {
+            return res.status(404).send({
+                message: "No transactions found for this envelope"
+            })
+        }
+        return res.status(200).send(transactions);
+    } catch (err: any) {
+        return res.status(500).send({
+            error: err.message
+        })
+    }
+}

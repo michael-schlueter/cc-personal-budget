@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createTransaction = exports.deleteEnvelope = exports.updateEnvelope = exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
+exports.getEnvelopeTransactions = exports.createTransaction = exports.deleteEnvelope = exports.updateEnvelope = exports.createEnvelope = exports.getEnvelope = exports.getAllEnvelopes = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 // @desc    Get all envelopes
@@ -197,4 +197,28 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.createTransaction = createTransaction;
+// @desc    Get all transactions from an envelope
+// @route   GET/api/envelopes/:id/transactions
+const getEnvelopeTransactions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const transactions = yield prisma.transactions.findMany({
+            where: {
+                sendingEnvelopeId: id
+            }
+        });
+        if (!transactions) {
+            return res.status(404).send({
+                message: "No transactions found for this envelope"
+            });
+        }
+        return res.status(200).send(transactions);
+    }
+    catch (err) {
+        return res.status(500).send({
+            error: err.message
+        });
+    }
+});
+exports.getEnvelopeTransactions = getEnvelopeTransactions;
 //# sourceMappingURL=envelopes-prisma.js.map

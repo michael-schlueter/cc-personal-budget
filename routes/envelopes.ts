@@ -1,12 +1,5 @@
 import express from "express";
-import {
-  // getAllEnvelopes,
-  // getEnvelope,
-  // createEnvelope,
-  // updateEnvelope,
-  // deleteEnvelope,
-  transferBudget,
-} from "../controller/envelopes";
+
 import {
   getAllEnvelopes,
   getEnvelope,
@@ -14,6 +7,7 @@ import {
   updateEnvelope,
   deleteEnvelope,
   createTransaction,
+  getEnvelopeTransactions,
 } from "../controller/envelopes-prisma"
 
 const envelopesRouter = express.Router();
@@ -24,5 +18,6 @@ envelopesRouter.post("/", createEnvelope);
 envelopesRouter.put("/:id", updateEnvelope);
 envelopesRouter.delete("/:id", deleteEnvelope);
 envelopesRouter.post("/:id/transactions", createTransaction);
+envelopesRouter.get("/:id/transactions", getEnvelopeTransactions);
 
 module.exports = envelopesRouter;
