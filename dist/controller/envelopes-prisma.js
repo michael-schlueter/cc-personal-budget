@@ -133,8 +133,13 @@ const updateEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 message: "Invalid envelope ID (Invalid UUID)",
             });
         }
+        if (err.code === "P2025") {
+            return res.status(500).send({
+                message: "Envelope ID not found",
+            });
+        }
         res.status(500).send({
-            error: err.message,
+            message: err.message,
         });
     }
 });
@@ -149,12 +154,17 @@ const deleteEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 id: id,
             },
         });
-        return res.status(204).send("Envelope deleted");
+        return res.sendStatus(204);
     }
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
                 message: "Invalid envelope ID (Invalid UUID)",
+            });
+        }
+        if (err.code === "P2025") {
+            return res.status(500).send({
+                message: "Envelope ID not found",
             });
         }
         return res.status(500).send({
@@ -197,7 +207,7 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         });
         if (!envelope || !receivingEnvelope) {
             return res.status(404).send({
-                message: "Envelope not found",
+                message: "Sending and/or receiving envelope not found",
             });
         }
         if (transactionAmount > envelope.budget) {
