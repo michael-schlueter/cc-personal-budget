@@ -51,11 +51,11 @@ const getEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
-                message: 'Invalid envelope ID (Invalid UUID)'
+                message: "Invalid envelope ID (Invalid UUID)",
             });
         }
         return res.status(500).send({
-            error: err.message
+            error: err.message,
         });
     }
 });
@@ -64,24 +64,33 @@ exports.getEnvelope = getEnvelope;
 // @route   POST/api/envelopes
 const createEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { title, budget } = req.body;
+    const envelopeBudget = parseInt(budget);
     try {
         if (title === "" || title == null || budget === "" || budget == null) {
             return res.status(400).send({
                 message: "Title and/or budget not provided",
             });
         }
+        if (isNaN(envelopeBudget)) {
+            return res.status(400).send({
+                message: "Budget has to be a number",
+            });
+        }
+        if (envelopeBudget < 0) {
+            return res.status(400).send({
+                message: "Budget has to be positive",
+            });
+        }
         const newEnvelope = yield prisma.envelopes.create({
             data: {
                 title: title,
-                budget: parseInt(budget),
+                budget: envelopeBudget,
             },
         });
         return res.status(201).send(newEnvelope);
     }
     catch (err) {
-        return res.status(500).send({
-            error: err.message,
-        });
+        return res.status(500).send(err);
     }
 });
 exports.createEnvelope = createEnvelope;
@@ -90,10 +99,21 @@ exports.createEnvelope = createEnvelope;
 const updateEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { title, budget } = req.body;
+    const envelopeBudget = parseInt(budget);
     try {
         if (title === "" || title == null || budget === "" || budget == null) {
             return res.status(400).send({
                 message: "Title and/or budget not provided",
+            });
+        }
+        if (isNaN(envelopeBudget)) {
+            return res.status(400).send({
+                message: "Budget has to be a number",
+            });
+        }
+        if (envelopeBudget < 0) {
+            return res.status(400).send({
+                message: "Budget has to be positive",
             });
         }
         const updatedEnvelope = yield prisma.envelopes.update({
@@ -102,7 +122,7 @@ const updateEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
             },
             data: {
                 title: title,
-                budget: parseInt(budget),
+                budget: envelopeBudget,
             },
         });
         res.status(200).send(updatedEnvelope);
@@ -110,7 +130,7 @@ const updateEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
-                message: 'Invalid envelope ID (Invalid UUID)'
+                message: "Invalid envelope ID (Invalid UUID)",
             });
         }
         res.status(500).send({
@@ -124,7 +144,7 @@ exports.updateEnvelope = updateEnvelope;
 const deleteEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
-        const deletedEnvelope = yield prisma.envelopes.delete({
+        yield prisma.envelopes.delete({
             where: {
                 id: id,
             },
@@ -134,7 +154,7 @@ const deleteEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
-                message: 'Invalid envelope ID (Invalid UUID)'
+                message: "Invalid envelope ID (Invalid UUID)",
             });
         }
         return res.status(500).send({
@@ -148,13 +168,19 @@ exports.deleteEnvelope = deleteEnvelope;
 const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { title, amount, receivingEnvelopeId } = req.body;
+    const transactionAmount = parseInt(amount);
     try {
         if (title === "" || title == null || amount === "" || amount == null) {
             return res.status(400).send({
                 message: "Title, amount and/or ID of receiving envelope not provided",
             });
         }
-        if (parseInt(amount) < 0) {
+        if (isNaN(transactionAmount)) {
+            return res.status(400).send({
+                message: "Amount needs to be a number",
+            });
+        }
+        if (transactionAmount < 0) {
             return res.status(400).send({
                 message: "Invalid amount",
             });
@@ -174,7 +200,7 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 message: "Envelope not found",
             });
         }
-        if (parseInt(amount) > (envelope === null || envelope === void 0 ? void 0 : envelope.budget)) {
+        if (transactionAmount > envelope.budget) {
             return res.status(400).send({
                 message: "Insufficient budget for transfer",
             });
@@ -182,7 +208,7 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const newTransaction = yield prisma.transactions.create({
             data: {
                 title: title,
-                amount: parseInt(amount),
+                amount: transactionAmount,
                 sendingEnvelopeId: id,
                 receivingEnvelopeId: receivingEnvelopeId,
             },
@@ -192,7 +218,7 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 id: id,
             },
             data: {
-                budget: envelope.budget - parseInt(amount),
+                budget: envelope.budget - transactionAmount,
             },
         });
         yield prisma.envelopes.update({
@@ -200,7 +226,7 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 id: receivingEnvelopeId,
             },
             data: {
-                budget: (receivingEnvelope === null || receivingEnvelope === void 0 ? void 0 : receivingEnvelope.budget) - parseInt(amount),
+                budget: receivingEnvelope.budget - transactionAmount,
             },
         });
         return res.status(201).send(newTransaction);
@@ -208,7 +234,7 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
-                message: 'Invalid envelope ID (Invalid UUID)'
+                message: "Invalid envelope ID (Invalid UUID)",
             });
         }
         return res.status(500).send({
@@ -227,7 +253,7 @@ const getEnvelopeTransactions = (req, res) => __awaiter(void 0, void 0, void 0, 
                 sendingEnvelopeId: id,
             },
         });
-        if (!transactions) {
+        if (transactions.length < 1) {
             return res.status(404).send({
                 message: "No transactions found for this envelope",
             });
@@ -237,7 +263,7 @@ const getEnvelopeTransactions = (req, res) => __awaiter(void 0, void 0, void 0, 
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
-                message: 'Invalid envelope ID (Invalid UUID)'
+                message: "Invalid envelope ID (Invalid UUID)",
             });
         }
         return res.status(500).send({

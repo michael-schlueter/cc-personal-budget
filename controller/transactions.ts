@@ -45,8 +45,8 @@ export const getTransaction = async (req: Request, res: Response) => {
   } catch (err: any) {
     if (err.code === "P2023") {
       return res.status(500).send({
-        message: 'Invalid transaction ID (Invalid UUID)'
-      })
+        message: "Invalid transaction ID (Invalid UUID)",
+      });
     }
     return res.status(500).send({
       message: err.message,
@@ -59,11 +59,18 @@ export const getTransaction = async (req: Request, res: Response) => {
 export const updateTransaction = async (req: Request, res: Response) => {
   const { id } = req.params;
   const { title, amount } = req.body;
+  const transactionAmount = parseInt(amount);
 
   try {
     if (title === "" || title == null || amount === "" || amount == null) {
       return res.status(400).send({
         message: "Title and/or budget not provided",
+      });
+    }
+
+    if (isNaN(transactionAmount)) {
+      return res.status(400).send({
+        message: "Amount needs to be a number",
       });
     }
 
@@ -103,7 +110,7 @@ export const updateTransaction = async (req: Request, res: Response) => {
       });
     }
 
-    const amountDifference = parseInt(amount) - transactionToUpdate.amount;
+    const amountDifference = transactionAmount - transactionToUpdate.amount;
     const newSendingEnvelopeBudget = sendingEnvelope.budget - amountDifference;
     const newReceivingEnvelopeBudget =
       receivingEnvelope.budget + amountDifference;
@@ -139,7 +146,7 @@ export const updateTransaction = async (req: Request, res: Response) => {
       },
       data: {
         title: title,
-        amount: parseInt(amount),
+        amount: transactionAmount,
       },
     });
 
@@ -147,8 +154,8 @@ export const updateTransaction = async (req: Request, res: Response) => {
   } catch (err: any) {
     if (err.code === "P2023") {
       return res.status(500).send({
-        message: 'Invalid transaction ID (Invalid UUID)'
-      })
+        message: "Invalid transaction ID (Invalid UUID)",
+      });
     }
     res.status(500).send({
       message: err.message,
@@ -227,8 +234,8 @@ export const deleteTransaction = async (req: Request, res: Response) => {
   } catch (err: any) {
     if (err.code === "P2023") {
       return res.status(500).send({
-        message: 'Invalid transaction ID (Invalid UUID)'
-      })
+        message: "Invalid transaction ID (Invalid UUID)",
+      });
     }
     res.status(500).send({
       message: err.message,

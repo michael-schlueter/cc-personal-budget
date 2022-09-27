@@ -51,7 +51,7 @@ const getTransaction = (req, res) => __awaiter(void 0, void 0, void 0, function*
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
-                message: 'Invalid transaction ID (Invalid UUID)'
+                message: "Invalid transaction ID (Invalid UUID)",
             });
         }
         return res.status(500).send({
@@ -65,10 +65,16 @@ exports.getTransaction = getTransaction;
 const updateTransaction = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { title, amount } = req.body;
+    const transactionAmount = parseInt(amount);
     try {
         if (title === "" || title == null || amount === "" || amount == null) {
             return res.status(400).send({
                 message: "Title and/or budget not provided",
+            });
+        }
+        if (isNaN(transactionAmount)) {
+            return res.status(400).send({
+                message: "Amount needs to be a number",
             });
         }
         if (amount < 0) {
@@ -101,7 +107,7 @@ const updateTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 message: "Sending or receiving envelope not found",
             });
         }
-        const amountDifference = parseInt(amount) - transactionToUpdate.amount;
+        const amountDifference = transactionAmount - transactionToUpdate.amount;
         const newSendingEnvelopeBudget = sendingEnvelope.budget - amountDifference;
         const newReceivingEnvelopeBudget = receivingEnvelope.budget + amountDifference;
         if (newSendingEnvelopeBudget < 0 || newReceivingEnvelopeBudget < 0) {
@@ -131,7 +137,7 @@ const updateTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
             },
             data: {
                 title: title,
-                amount: parseInt(amount),
+                amount: transactionAmount,
             },
         });
         return res.status(200).send(updatedTransaction);
@@ -139,7 +145,7 @@ const updateTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
-                message: 'Invalid transaction ID (Invalid UUID)'
+                message: "Invalid transaction ID (Invalid UUID)",
             });
         }
         res.status(500).send({
@@ -209,7 +215,7 @@ const deleteTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
     catch (err) {
         if (err.code === "P2023") {
             return res.status(500).send({
-                message: 'Invalid transaction ID (Invalid UUID)'
+                message: "Invalid transaction ID (Invalid UUID)",
             });
         }
         res.status(500).send({
