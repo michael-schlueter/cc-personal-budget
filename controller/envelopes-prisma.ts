@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 export const getAllEnvelopes = async (req: Request, res: Response) => {
   try {
     const envelopes = await prisma.envelopes.findMany();
-    if (!envelopes) {
+    if (envelopes.length < 1) {
       return res.status(404).send({
         message: "No envelopes found",
       });
@@ -41,8 +41,13 @@ export const getEnvelope = async (req: Request, res: Response) => {
 
     res.status(200).send(envelope);
   } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: 'Invalid envelope ID (Invalid UUID)'
+      })
+    }
     return res.status(500).send({
-      message: err.message,
+      error: err.message
     });
   }
 };
@@ -99,6 +104,11 @@ export const updateEnvelope = async (req: Request, res: Response) => {
 
     res.status(200).send(updatedEnvelope);
   } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: 'Invalid envelope ID (Invalid UUID)'
+      })
+    }
     res.status(500).send({
       error: err.message,
     });
@@ -118,6 +128,11 @@ export const deleteEnvelope = async (req: Request, res: Response) => {
     });
     return res.status(204).send("Envelope deleted");
   } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: 'Invalid envelope ID (Invalid UUID)'
+      })
+    }
     return res.status(500).send({
       error: err.message,
     });
@@ -196,6 +211,11 @@ export const createTransaction = async (req: Request, res: Response) => {
 
     return res.status(201).send(newTransaction);
   } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: 'Invalid envelope ID (Invalid UUID)'
+      })
+    }
     return res.status(500).send({
       error: err.message,
     });
@@ -221,6 +241,11 @@ export const getEnvelopeTransactions = async (req: Request, res: Response) => {
     }
     return res.status(200).send(transactions);
   } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: 'Invalid envelope ID (Invalid UUID)'
+      })
+    }
     return res.status(500).send({
       error: err.message,
     });

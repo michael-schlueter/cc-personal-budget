@@ -17,7 +17,7 @@ const prisma = new client_1.PrismaClient();
 const getAllTransactions = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const transactions = yield prisma.transactions.findMany();
-        if (!transactions) {
+        if (transactions.length < 1) {
             return res.status(404).send({
                 message: "No transactions found",
             });
@@ -49,6 +49,11 @@ const getTransaction = (req, res) => __awaiter(void 0, void 0, void 0, function*
         return res.status(200).send(transaction);
     }
     catch (err) {
+        if (err.code === "P2023") {
+            return res.status(500).send({
+                message: 'Invalid transaction ID (Invalid UUID)'
+            });
+        }
         return res.status(500).send({
             message: err.message,
         });
@@ -132,6 +137,11 @@ const updateTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         return res.status(200).send(updatedTransaction);
     }
     catch (err) {
+        if (err.code === "P2023") {
+            return res.status(500).send({
+                message: 'Invalid transaction ID (Invalid UUID)'
+            });
+        }
         res.status(500).send({
             message: err.message,
         });
@@ -197,6 +207,11 @@ const deleteTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.sendStatus(204);
     }
     catch (err) {
+        if (err.code === "P2023") {
+            return res.status(500).send({
+                message: 'Invalid transaction ID (Invalid UUID)'
+            });
+        }
         res.status(500).send({
             message: err.message,
         });

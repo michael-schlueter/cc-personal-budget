@@ -17,7 +17,7 @@ const prisma = new client_1.PrismaClient();
 const getAllEnvelopes = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const envelopes = yield prisma.envelopes.findMany();
-        if (!envelopes) {
+        if (envelopes.length < 1) {
             return res.status(404).send({
                 message: "No envelopes found",
             });
@@ -49,8 +49,13 @@ const getEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(200).send(envelope);
     }
     catch (err) {
+        if (err.code === "P2023") {
+            return res.status(500).send({
+                message: 'Invalid envelope ID (Invalid UUID)'
+            });
+        }
         return res.status(500).send({
-            message: err.message,
+            error: err.message
         });
     }
 });
@@ -103,6 +108,11 @@ const updateEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
         res.status(200).send(updatedEnvelope);
     }
     catch (err) {
+        if (err.code === "P2023") {
+            return res.status(500).send({
+                message: 'Invalid envelope ID (Invalid UUID)'
+            });
+        }
         res.status(500).send({
             error: err.message,
         });
@@ -122,6 +132,11 @@ const deleteEnvelope = (req, res) => __awaiter(void 0, void 0, void 0, function*
         return res.status(204).send("Envelope deleted");
     }
     catch (err) {
+        if (err.code === "P2023") {
+            return res.status(500).send({
+                message: 'Invalid envelope ID (Invalid UUID)'
+            });
+        }
         return res.status(500).send({
             error: err.message,
         });
@@ -191,6 +206,11 @@ const createTransaction = (req, res) => __awaiter(void 0, void 0, void 0, functi
         return res.status(201).send(newTransaction);
     }
     catch (err) {
+        if (err.code === "P2023") {
+            return res.status(500).send({
+                message: 'Invalid envelope ID (Invalid UUID)'
+            });
+        }
         return res.status(500).send({
             error: err.message,
         });
@@ -215,6 +235,11 @@ const getEnvelopeTransactions = (req, res) => __awaiter(void 0, void 0, void 0, 
         return res.status(200).send(transactions);
     }
     catch (err) {
+        if (err.code === "P2023") {
+            return res.status(500).send({
+                message: 'Invalid envelope ID (Invalid UUID)'
+            });
+        }
         return res.status(500).send({
             error: err.message,
         });

@@ -9,7 +9,7 @@ export const getAllTransactions = async (req: Request, res: Response) => {
   try {
     const transactions = await prisma.transactions.findMany();
 
-    if (!transactions) {
+    if (transactions.length < 1) {
       return res.status(404).send({
         message: "No transactions found",
       });
@@ -43,6 +43,11 @@ export const getTransaction = async (req: Request, res: Response) => {
 
     return res.status(200).send(transaction);
   } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: 'Invalid transaction ID (Invalid UUID)'
+      })
+    }
     return res.status(500).send({
       message: err.message,
     });
@@ -140,6 +145,11 @@ export const updateTransaction = async (req: Request, res: Response) => {
 
     return res.status(200).send(updatedTransaction);
   } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: 'Invalid transaction ID (Invalid UUID)'
+      })
+    }
     res.status(500).send({
       message: err.message,
     });
@@ -215,6 +225,11 @@ export const deleteTransaction = async (req: Request, res: Response) => {
 
     res.sendStatus(204);
   } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: 'Invalid transaction ID (Invalid UUID)'
+      })
+    }
     res.status(500).send({
       message: err.message,
     });
