@@ -9,11 +9,13 @@ const logger = require("morgan");
 dotenv_1.default.config();
 const envelopesRouter = require("./routes/envelopes");
 const transactionsRouter = require("./routes/transactions");
+const docsRouter = require("./routes/docs");
 const app = (0, express_1.default)();
 const port = process.env.PORT;
 app.use(logger("dev"));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
+app.use("/api-docs", docsRouter);
 app.use("/api/envelopes", envelopesRouter);
 app.use("/api/transactions", transactionsRouter);
 app.listen(port, () => {

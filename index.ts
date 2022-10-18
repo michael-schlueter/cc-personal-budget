@@ -6,6 +6,7 @@ dotenv.config();
 
 const envelopesRouter = require("./routes/envelopes");
 const transactionsRouter = require("./routes/transactions");
+const docsRouter = require("./routes/docs");
 
 const app: Express = express();
 const port = process.env.PORT;
@@ -13,6 +14,8 @@ const port = process.env.PORT;
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+app.use("/api-docs", docsRouter);
 
 app.use("/api/envelopes", envelopesRouter);
 app.use("/api/transactions", transactionsRouter);
