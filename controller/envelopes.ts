@@ -1,170 +1,294 @@
+import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
-import modelEnvelopes from "../model/envelopes";
-import { createId, findById, getIndex } from "../utils/helpers";
+
+const prisma = new PrismaClient();
 
 // @desc    Get all envelopes
 // @route   GET /api/envelopes
 export const getAllEnvelopes = async (req: Request, res: Response) => {
   try {
-    // Simulating DB retrieval
-    const envelopes = await modelEnvelopes;
-    res.status(200).send(envelopes);
-  } catch (err) {
-    res.status(400).send(err);
+    const envelopes = await prisma.envelopes.findMany();
+    if (envelopes.length < 1) {
+      return res.status(404).send({
+        message: "No envelopes found",
+      });
+    }
+
+    return res.status(200).send(envelopes);
+  } catch (err: any) {
+    return res.status(500).send({
+      error: err.message,
+    });
   }
 };
 
-// @desc    Get a specific envelope
-// @route   GET /api/envelopes/:id
+// @desc  Get a specific envelope
+// @route Get /api/envelopes/:id
 export const getEnvelope = async (req: Request, res: Response) => {
+  const { id } = req.params;
   try {
-    const envelopes = await modelEnvelopes;
-    const { id } = req.params;
-    const retrievedEnvelope = findById(envelopes, id);
+    const envelope = await prisma.envelopes.findUnique({
+      where: {
+        id: id,
+      },
+    });
 
-    if (!retrievedEnvelope) {
-      res.status(404).send({
+    if (!envelope) {
+      return res.status(404).send({
         message: "Envelope Not Found",
       });
     }
 
-    res.status(200).send(retrievedEnvelope);
-  } catch (err) {
-    res.status(500).send(err);
+    res.status(200).send(envelope);
+  } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: "Invalid envelope ID (Invalid UUID)",
+      });
+    }
+    return res.status(500).send({
+      error: err.message,
+    });
   }
 };
 
 // @desc    Create an envelope
-// @route   POST /api/envelopes
+// @route   POST/api/envelopes
 export const createEnvelope = async (req: Request, res: Response) => {
+  const { title, budget } = req.body;
+  const envelopeBudget = parseInt(budget);
+
   try {
-    const envelopes = await modelEnvelopes;
-    const { title, budget } = req.body;
-    const envelopeBudget = parseInt(budget);
-    const newId = createId(envelopes);
-
-    if (!newId) {
+    if (title === "" || title == null || budget === "" || budget == null) {
       return res.status(400).send({
-        message: "Invalid ID",
+        message: "Title and/or budget not provided",
       });
     }
 
-    if (!envelopeBudget) {
+    if (isNaN(envelopeBudget)) {
       return res.status(400).send({
-        message: "Invalid Budget",
+        message: "Budget has to be a number",
       });
     }
 
-    const newEnvelope = {
-      id: newId,
-      title,
-      budget,
-    };
+    if (envelopeBudget < 0) {
+      return res.status(400).send({
+        message: "Budget has to be positive",
+      });
+    }
 
-    envelopes.push(newEnvelope);
+    const newEnvelope = await prisma.envelopes.create({
+      data: {
+        title: title,
+        budget: envelopeBudget,
+      },
+    });
+
     return res.status(201).send(newEnvelope);
-  } catch (err) {
-    res.status(500).send(err);
+  } catch (err: any) {
+    return res.status(500).send(err);
   }
 };
 
 // @desc    Update an envelope
-// @route   PUT /api/envelopes/:id
+// @route   PUT/api/envelopes
 export const updateEnvelope = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { title, budget } = req.body;
+  const envelopeBudget = parseInt(budget);
+
   try {
-    const envelopes = await modelEnvelopes;
-    const { id } = req.params;
-    const envelopeToUpdate = findById(envelopes, id);
-    const envelopeIdx = getIndex(envelopes, id);
-
-    if (!envelopeToUpdate || !envelopeIdx) {
-      return res.status(404).send({
-        message: "Envelope Not Found",
-      });
-    }
-
-    const { title, budget } = req.body;
-    const envelopeBudget = parseInt(budget);
-
-    if (!envelopeBudget) {
+    if (title === "" || title == null || budget === "" || budget == null) {
       return res.status(400).send({
-        message: "Invalid Budget",
+        message: "Title and/or budget not provided",
       });
     }
 
-    if (title && budget) {
-      const updatedEnvelope = {
-        id: envelopeToUpdate.id,
-        title,
+    if (isNaN(envelopeBudget)) {
+      return res.status(400).send({
+        message: "Budget has to be a number",
+      });
+    }
+
+    if (envelopeBudget < 0) {
+      return res.status(400).send({
+        message: "Budget has to be positive",
+      });
+    }
+
+    const updatedEnvelope = await prisma.envelopes.update({
+      where: {
+        id: id,
+      },
+      data: {
+        title: title,
         budget: envelopeBudget,
-      };
+      },
+    });
 
-      modelEnvelopes[envelopeIdx] = updatedEnvelope;
-      res.status(200).send(updatedEnvelope);
-    } else {
-      res.status(400).send({
-        message: "title and/or budget not provided",
+    res.status(200).send(updatedEnvelope);
+  } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: "Invalid envelope ID (Invalid UUID)",
       });
     }
-  } catch (err) {
-    res.status(500).send(err);
+    if (err.code === "P2025") {
+      return res.status(500).send({
+        message: "Envelope ID not found",
+      });
+    }
+    res.status(500).send({
+      message: err.message,
+    });
   }
 };
 
 // @desc    Delete an envelope
-// @route   DELETE /api/envelopes/:id
+// @route   DELETE/api/envelopes
 export const deleteEnvelope = async (req: Request, res: Response) => {
-  try {
-    const envelopes = await modelEnvelopes;
-    const { id } = req.params;
-    const envelopeToDelete = findById(envelopes, id);
-    const envelopeIdx = getIndex(envelopes, id);
+  const { id } = req.params;
 
-    if (!envelopeToDelete || !envelopeIdx) {
-      return res.status(404).send({
-        message: "Envelope not found",
+  try {
+    await prisma.envelopes.delete({
+      where: {
+        id: id,
+      },
+    });
+    return res.sendStatus(204);
+  } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: "Invalid envelope ID (Invalid UUID)",
       });
     }
-
-    envelopes.splice(envelopeIdx, 1);
-    res.status(204).send(envelopes);
-  } catch (err) {
-    res.status(500).send(err);
+    if (err.code === "P2025") {
+      return res.status(500).send({
+        message: "Envelope ID not found",
+      });
+    }
+    return res.status(500).send({
+      error: err.message,
+    });
   }
 };
 
-export const transferBudget = async (req: Request, res: Response) => {
+// @desc    Create a transaction
+// @route   POST/api/envelopes/:id/transactions
+export const createTransaction = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { title, amount, receivingEnvelopeId } = req.body;
+  const transactionAmount = parseInt(amount);
+
   try {
-    const envelopes = await modelEnvelopes;
-    const { fromId, toId } = req.params;
-    const amount = parseInt(req.body.amount);
-
-    const sendingEnvelope = findById(envelopes, fromId);
-    const receivingEnvelope = findById(envelopes, toId);
-
-    if (!sendingEnvelope || !receivingEnvelope) {
-      return res.status(404).send({
-        message: "Envelope(s) not found",
+    if (title === "" || title == null || amount === "" || amount == null) {
+      return res.status(400).send({
+        message: "Title, amount and/or ID of receiving envelope not provided",
       });
     }
 
-    if (amount < 0 || !amount) {
-      res.status(400).send({
+    if (isNaN(transactionAmount)) {
+      return res.status(400).send({
+        message: "Amount needs to be a number",
+      });
+    }
+
+    if (transactionAmount < 0) {
+      return res.status(400).send({
         message: "Invalid amount",
       });
     }
 
-    if (amount > sendingEnvelope.budget) {
-      res.status(400).send({
+    const envelope = await prisma.envelopes.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    const receivingEnvelope = await prisma.envelopes.findUnique({
+      where: {
+        id: receivingEnvelopeId,
+      },
+    });
+
+    if (!envelope || !receivingEnvelope) {
+      return res.status(404).send({
+        message: "Sending and/or receiving envelope not found",
+      });
+    }
+
+    if (transactionAmount > envelope.budget) {
+      return res.status(400).send({
         message: "Insufficient budget for transfer",
       });
     }
 
-    sendingEnvelope.budget -= amount;
-    receivingEnvelope.budget += amount;
+    const newTransaction = await prisma.transactions.create({
+      data: {
+        title: title,
+        amount: transactionAmount,
+        sendingEnvelopeId: id,
+        receivingEnvelopeId: receivingEnvelopeId,
+      },
+    });
 
-    res.status(201).send(receivingEnvelope);
-  } catch (err) {
-    res.status(500).send(err);
+    await prisma.envelopes.update({
+      where: {
+        id: id,
+      },
+      data: {
+        budget: envelope.budget - transactionAmount,
+      },
+    });
+
+    await prisma.envelopes.update({
+      where: {
+        id: receivingEnvelopeId,
+      },
+      data: {
+        budget: receivingEnvelope.budget - transactionAmount,
+      },
+    });
+
+    return res.status(201).send(newTransaction);
+  } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: "Invalid envelope ID (Invalid UUID)",
+      });
+    }
+    return res.status(500).send({
+      error: err.message,
+    });
+  }
+};
+
+// @desc    Get all transactions from an envelope
+// @route   GET/api/envelopes/:id/transactions
+export const getEnvelopeTransactions = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const transactions = await prisma.transactions.findMany({
+      where: {
+        sendingEnvelopeId: id,
+      },
+    });
+
+    if (transactions.length < 1) {
+      return res.status(404).send({
+        message: "No transactions found for this envelope",
+      });
+    }
+    return res.status(200).send(transactions);
+  } catch (err: any) {
+    if (err.code === "P2023") {
+      return res.status(500).send({
+        message: "Invalid envelope ID (Invalid UUID)",
+      });
+    }
+    return res.status(500).send({
+      error: err.message,
+    });
   }
 };
